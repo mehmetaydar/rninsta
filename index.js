@@ -8,15 +8,18 @@ import { store } from 'store';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistor } from 'store';
+import {setNavigator} from './src/navigationRef';
 
 StatusBar.setBarStyle('light-content', true);
 StatusBar.backgroundColor = '#000';
 
-const Navigation = createAppContainer(AppNavigator);
+const App = createAppContainer(AppNavigator);
 const Root = () => (
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <Navigation/>
+      <App ref ={(navigator) => {
+            setNavigator(navigator);
+      }}/>
     </PersistGate>
   </Provider>
 );
