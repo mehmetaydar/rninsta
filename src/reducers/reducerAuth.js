@@ -1,14 +1,18 @@
+import { LOCAL_SIGNIN, CLEAR_ERROR_MESSAGE, 
+    SIGNED_UP, SIGNED_IN, SIGNED_OUT, ADD_ERROR } from '../actions';
+
 initialState = {token: null, errorMessage: ''};
 export const authReducer = (state = initialState, action) =>{
     switch(action.type){
-        case 'add_error':
+        case ADD_ERROR:
+            //console.log(`Reducer type ADD_ERROR: ${action.payload}`);
             return {...state, errorMessage: action.payload}
-        case 'signin':
-            return {...state, token: action.payload, errorMessage: ''}
-        case 'signout':
-                return {...state, token: null, errorMessage: ''}    
-        case 'clear_error_message':
+        case SIGNED_IN:
+            //console.log("Reducer type SIGNED_IN");
             return {...state, errorMessage: ''}
+        case SIGNED_OUT:
+                //console.log("Reducer type SIGNED_OUT");
+            return {...state, errorMessage: ''}    
         default:
             return state;
     }

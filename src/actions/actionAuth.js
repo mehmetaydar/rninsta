@@ -5,6 +5,11 @@ export const SIGNUP = "SIGNUP";
 export const SIGNIN = "SIGNIN";
 export const SIGNOUT = "SIGNOUT";
 
+export const SIGNED_UP = "SIGNED_UP";
+export const SIGNED_IN = "SIGNED_IN";
+export const SIGNED_OUT = "SIGNED_OUT";
+export const ADD_ERROR = "ADD_ERROR";
+
 export const tryLocalSignin = ()=> action(LOCAL_SIGNIN);
 export const clearErrorMessage = ()=> action(CLEAR_ERROR_MESSAGE);
 export const signup = ({email, password})=> action(SIGNUP, {email, password});

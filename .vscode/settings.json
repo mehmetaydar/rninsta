@@ -1,0 +1,10 @@
+{
+    "files.exclude": {
+        "**/__tests__": true,
+        "**/.expo": true,
+        "**/.vscode": true,
+        "**/android": true,
+        "**/ios": true,
+        "**/node_modules": true
+    }
+}

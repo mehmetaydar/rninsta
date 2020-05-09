@@ -7,7 +7,8 @@ import { connect } from 'react-redux';
 import { signup, clearErrorMessage } from 'actions';
 
 const SignupScreen = (props) => {
-
+    console.log("Signedup: json-state log: ");
+    console.log(JSON.stringify(props));
     return (
     <View style={styles.container}>
         <NavigationEvents onWillBlur={props.clearErrorMessage} />
@@ -36,7 +37,9 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-    const {token, errorMessage} = state;
+    const {authReducer: 
+        {token, errorMessage}
+    } = state;
     return {
       token, errorMessage
     };

@@ -36,7 +36,9 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-    const {token, errorMessage} = state;
+    const {authReducer: 
+        {token, errorMessage}
+    } = state;
     return {
       token, errorMessage
     };
