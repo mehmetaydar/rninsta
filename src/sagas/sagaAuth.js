@@ -13,7 +13,7 @@ export function* watchTryLocalSignin() {
     if(user){
         //console.log(`FIREBASE-USER: ${user.uid}`);
         yield put({type: SIGNED_IN});
-        navigate('Main');        
+        navigate('Signup');        
     }
     else{
         navigate("Signup");
@@ -26,14 +26,14 @@ export function* watchClearErrorMessage(){
     yield put({type: ADD_ERROR, payload: ''});
 }
 
-function* signup({email, password}){
+function* signup({email, password, fullname}){
     /*const getErrorMessage = (state) => state;
     const err = yield select(getErrorMessage);
     console.log(`State errorMes1: ${err}`);
     console.log(JSON.stringify(err));*/
 
     //console.log(`-->signup-> email:${email} password: ${password}`);
-    const {user, error} = yield call(Fire.shared.signup, {email, password} );
+    const {user, error} = yield call(Fire.shared.signup, {email, password, fullname} );
     if(user){
         //console.log(`FIREBASE-SIGNED_UP_USER: ${user.uid}`);
         yield put({type: SIGNED_UP});

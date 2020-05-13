@@ -30,6 +30,23 @@ class Fire {
     //firebase.firestore().settings({ timestampsInSnapshots: true });
   }
 
+  test({email, password, fullname}){
+    console.log("fire.test");
+    return new Promise((resolve, reject) => {
+        uid = "rIxsSJGeQqdpk9oogwvjGc3pHt53";
+        fullname = fullname.trim().replace('  ', ' ');
+        firebase.database().ref(`/people/${uid}`).set({
+            /*_search_index: {
+              full_name: fullname,
+              reversed_full_name: fullname.split(' ').reverse().join(' ')
+            },*/
+            full_name: fullname,
+            //notificationEnabled: true                  
+          });
+        resolve({user});
+      })
+  }
+
   authStateChanged(params) {
     //console.log(`param: ${param}`);
     //yield put({type: SIGNIN});
@@ -47,15 +64,24 @@ class Fire {
     }); 
   } 
 
-  signup({email, password}){
+  signup({email, password, fullname}){
     console.log("fire.Signup");
     return new Promise((resolve, reject) => {
       firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
         .then(({user}) =>{ 
-            resolve({user});
-          })
+            fullname = fullname.trim().replace('  ', ' ');
+            firebase.database().ref(`/people/${user.uid}`).set({
+                _search_index: {
+                  full_name: fullname,
+                  reversed_full_name: fullname.split(' ').reverse().join(' ')
+                },
+                full_name: fullname,
+                notificationEnabled: true                  
+              });
+            resolve({user});            
+        })
         .catch(function(error){
             console.log(error.message);
             resolve({user: null, error});

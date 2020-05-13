@@ -12,6 +12,6 @@ export const ADD_ERROR = "ADD_ERROR";
 
 export const tryLocalSignin = ()=> action(LOCAL_SIGNIN);
 export const clearErrorMessage = ()=> action(CLEAR_ERROR_MESSAGE);
-export const signup = ({email, password})=> action(SIGNUP, {email, password});
+export const signup = ({email, password, fullname})=> action(SIGNUP, {email, password, fullname});
 export const signin = ({email, password})=> action(SIGNIN, {email, password});
 export const signout = ()=> action(SIGNOUT);
