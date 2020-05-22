@@ -4,16 +4,32 @@ import getUserInfo from 'utils/getUserInfo';
 import shrinkImageAsync from 'utils/shrinkImageAsync';
 import uploadPhoto from 'utils/uploadPhoto';
 import ReduxSagaFirebase from 'redux-saga-firebase';
+import FireHelper from './FireHelper';
+//import FirebaseHelper from './FirebaseHelper'; //this was with realtime database
+
+//Firebase fix with 7.14.2
+import {decode, encode} from 'base-64'
+if (!global.btoa) {  global.btoa = encode }
+if (!global.atob) { global.atob = decode }
+//this was needed to get around with a firestore bug: https://github.com/firebase/firebase-js-sdk/issues/2991
+window.addEventListener = x => x;
 
 //import firebase from 'firebase';
 import firebaseConfig from 'database/firebase-config.json';
-import firebase from 'firebase/app';
+//import firebase from 'firebase/app'; //for realtime database
+
+//const firebase = require("firebase");
+// Required for side-effects
+//require("firebase/firestore");
+
+import firebase from 'firebase';
+import 'firebase/firestore'; 
 
 // Configure Firebase.
 const myFirebaseApp = firebase.initializeApp(firebaseConfig.result);
 
-import FirebaseHelper from './FirebaseHelper';
-export const frh = new FirebaseHelper();
+//export const frh = new FirebaseHelper();
+export const frh = new FireHelper();
 
 //const firebase = require('firebase');
 // Required for side-effects

@@ -25,7 +25,9 @@ const ProfileScreen = (props) => {
   };
   useEffect(() => {
     
-    syncRef(`/people/${userId}/full_name`, 'profile', 'full_name');
+    //readRef(`people/${userId}`, 'profile', 'full_name');
+    syncRef(`/people/${userId}`, 'profile', "full_name"); 
+    //syncRef(`/people/${userId}/full_name`, 'profile', 'full_name');
     //readRef(`/people/${userId}/full_name`, 'profile', 'full_name');
     //readRef(`/people/${userId}/url`, 'profile', 'url');
     //readRef(`/people/${userId}/bio`, 'profile', 'bio');
