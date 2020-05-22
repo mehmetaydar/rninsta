@@ -1,5 +1,6 @@
 import {entities} from './reducerMessages';
 import {authReducer} from './reducerAuth';
+import {fireReducer} from './reducerFire';
 import { combineReducers } from 'redux';
 
 export function errorMessage(state = null, action) {
@@ -27,7 +28,8 @@ const rootReducer = combineReducers({
   entities,
   errorMessage,
   isLoading,
-  authReducer
+  authReducer,
+  fireReducer
 })
 
 export default rootReducer;

@@ -9,7 +9,6 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistor } from 'store';
 import {setNavigator} from './src/navigationRef';
-//import Fire from './src/database/Fire';//need to import one time
 
 StatusBar.setBarStyle('light-content', true);
 StatusBar.backgroundColor = '#000';

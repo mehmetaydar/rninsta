@@ -2,18 +2,22 @@ import { put, fork, select, take, call, takeLatest} from 'redux-saga/effects';
 import {navigate} from '../navigationRef';
 import { LOCAL_SIGNIN, CLEAR_ERROR_MESSAGE, SIGNUP, SIGNIN, SIGNOUT, 
     SIGNED_UP,SIGNED_IN,SIGNED_OUT, ADD_ERROR} from '../actions';
-import Fire from '../database/Fire';
+import {Fire, fr, frh, rsf} from '../database/Fire';
+
 
 export function* watchTryLocalSignin() {
 
     yield take(LOCAL_SIGNIN, null);
     //const user = yield call(firebaseAuth);
     params = {};
-    const user = yield call(Fire.shared.authStateChanged, params );
-    if(user){
-        //console.log(`FIREBASE-USER: ${user.uid}`);
+    const user = yield call(fr.authStateChanged, params );
+    console.log(`fr.uid: ${fr.uid}`);
+    if(fr.uid){ 
+        console.log(`FIREBASE-USER: ${user.uid}`);
         yield put({type: SIGNED_IN});
-        navigate('Signup');        
+        //navigate('Signup');        
+        //navigate('Signin');        
+        navigate('Main');        
     }
     else{
         navigate("Signup");
@@ -33,7 +37,7 @@ function* signup({email, password, fullname}){
     console.log(JSON.stringify(err));*/
 
     //console.log(`-->signup-> email:${email} password: ${password}`);
-    const {user, error} = yield call(Fire.shared.signup, {email, password, fullname} );
+    const {user, error} = yield call(fr.signup, {email, password, fullname} );
     if(user){
         //console.log(`FIREBASE-SIGNED_UP_USER: ${user.uid}`);
         yield put({type: SIGNED_UP});
@@ -53,7 +57,7 @@ export function* watchSignup(){
 
 function* signin({email, password}){
     //console.log(`-->signin-> email:${email} password: ${password}`);
-    const {user, error} = yield call(Fire.shared.signin, {email, password} );
+    const {user, error} = yield call(fr.signin, {email, password} );
     if(user){
         //console.log(`FIREBASE-SIGN_IN_USER: ${user.uid}`);
         yield put({type: SIGNED_IN});
@@ -71,7 +75,7 @@ export function* watchSignin(){
 export function* watchSignout(){
     yield take(SIGNOUT);
     //console.log(`-->signout-> `);    
-    const {success, error} = yield call(Fire.shared.signout);
+    const {success, error} = yield call(fr.signout);
     if(success){
         navigate('Signin');
         yield put({type: SIGNED_OUT});

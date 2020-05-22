@@ -3,31 +3,30 @@ import uuid from 'uuid';
 import getUserInfo from 'utils/getUserInfo';
 import shrinkImageAsync from 'utils/shrinkImageAsync';
 import uploadPhoto from 'utils/uploadPhoto';
-import firebase from 'firebase';
+import ReduxSagaFirebase from 'redux-saga-firebase';
+
+//import firebase from 'firebase';
+import firebaseConfig from 'database/firebase-config.json';
+import firebase from 'firebase/app';
+
+// Configure Firebase.
+const myFirebaseApp = firebase.initializeApp(firebaseConfig.result);
+
+import FirebaseHelper from './FirebaseHelper';
+export const frh = new FirebaseHelper();
 
 //const firebase = require('firebase');
 // Required for side-effects
-require('firebase/firestore'); //not sure why we need this, not sure if we are using it
+//require('firebase/firestore'); //not sure why we need this, not sure if we are using it
 
 const collectionName = 'instabackend-180da'; //is it true?, realtime database name
+//define utilities from insta-backend(friendly-pix)
 
-class Fire {
-  
-  constructor() {
-    firebase.initializeApp({
-        apiKey: "AIzaSyBAiiXY1eKa9Im2RniBDVGPXXGOP3FyMWE",
-        authDomain: "instabackend-180da.firebaseapp.com",
-        databaseURL: "https://instabackend-180da.firebaseio.com",
-        projectId: "instabackend-180da",
-        storageBucket: "instabackend-180da.appspot.com",
-        messagingSenderId: "855765439258",
-        appId: "1:855765439258:web:a4cd4fee25627ac4c212a3",
-        measurementId: "G-P21X7RMKT6"
-    });
-    
+export class Fire {
+  constructor() {    
     // Some nonsense...
     //this wasn't working on my settings
-    //firebase.firestore().settings({ timestampsInSnapshots: true });
+    //firebase.firestore().settings({ timestampsInSnapshots: true });        
   }
 
   test({email, password, fullname}){
@@ -54,6 +53,7 @@ class Fire {
         firebase.auth().onAuthStateChanged(async user => {
             if (user) {
                 console.log("AUTH SUCCess firebase");                
+                console.log(`User.displayName: ${user.displayName}`);
                 resolve({user});
             }
             else{
@@ -71,7 +71,18 @@ class Fire {
         .auth()
         .createUserWithEmailAndPassword(email, password)
         .then(({user}) =>{ 
+            if (!fullname) 
+              fullname = 'Anonymous';
             fullname = fullname.trim().replace('  ', ' ');
+            user.updateProfile({
+              displayName: fullname
+            }).then((s)=> {
+              console.log(`s: ${s}`);
+              console.log(`User displayName is updated with: ${fullname}`);
+              console.log(`User.displayName: ${user.displayName}`);                            
+              frh.updatePublicProfile();
+            });
+            /*fullname = fullname.trim().replace('  ', ' ');
             firebase.database().ref(`/people/${user.uid}`).set({
                 _search_index: {
                   full_name: fullname,
@@ -79,7 +90,7 @@ class Fire {
                 },
                 full_name: fullname,
                 notificationEnabled: true                  
-              });
+              });*/
             resolve({user});            
         })
         .catch(function(error){
@@ -198,5 +209,5 @@ class Fire {
     return Date.now();
   }
 }
-Fire.shared = new Fire();
-export default Fire;
+export const fr = new Fire();
+export const rsf = new ReduxSagaFirebase(myFirebaseApp); //redux-saga-firebase

@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "result": {
+    "apiKey": "AIzaSyBAiiXY1eKa9Im2RniBDVGPXXGOP3FyMWE",
+    "authDomain": "instabackend-180da.firebaseapp.com",
+    "databaseURL": "https://instabackend-180da.firebaseio.com",
+    "projectId": "instabackend-180da",
+    "storageBucket": "instabackend-180da.appspot.com",
+    "messagingSenderId": "855765439258",
+    "appId": "1:855765439258:web:a4cd4fee25627ac4c212a3",
+    "measurementId": "G-P21X7RMKT6"
+  }
+}
