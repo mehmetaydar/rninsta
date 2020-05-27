@@ -23,7 +23,7 @@ import firebaseConfig from 'database/firebase-config.json';
 //require("firebase/firestore");
 
 import firebase from 'firebase';
-import 'firebase/firestore'; 
+//import 'firebase/firestore'; 
 
 // Configure Firebase.
 const myFirebaseApp = firebase.initializeApp(firebaseConfig.result);

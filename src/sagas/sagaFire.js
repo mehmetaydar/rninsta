@@ -2,27 +2,15 @@ import { put, fork, select, take, call, takeLatest, takeEvery} from 'redux-saga/
 import {navigate} from '../navigationRef';
 import { LOCAL_SIGNIN, CLEAR_ERROR_MESSAGE, SIGNUP, SIGNIN, SIGNOUT, 
     SIGNED_UP,SIGNED_IN,SIGNED_OUT, ADD_ERROR} from '../actions';
-
-import {fire_types} from '../actions/actionFire';    
-//{S_READREF, R_READREF, S_SYNCREF, R_SYNCREF} = fire_types;    
 import {Fire, fr, frh, rsf} from '../database/Fire';
+
+import {fire_types} from '../actions/actionFire';
 
 
 function* readref({path, key1, key2}){
     console.log(`-->readref-> path:${path} , ${key1}.${key2} `);
-    /*const value = yield call(rsf.database.read, path);
-    console.log(`--->readref->path.value=${value}`);*/
-    let value = null;
-    const snapshot = yield call(rsf.firestore.getDocument, path);    
-    if(snapshot.exists){
-        const doc = snapshot.data();
-        let value = doc;
-        if(key2 !== null)
-            value = doc[key2]; //we are reading a document field       
-        //else we are reading a document    
-    }
-    console.log("VALUE TO READ: ");
-    console.log(JSON.stringify(value));
+    const value = yield call(rsf.database.read, path);
+    console.log(`--->readref->path.value=${value}`);
     yield put({type: fire_types.R_READREF, payload: {value, key1, key2}});    
 }
 export function* watchReadref(){
@@ -32,43 +20,31 @@ export function* watchReadref(){
 
 function* syncref({path, key1, key2}){
     console.log(`-->syncref-> path:${path} , ${key1}.${key2}`);
-    /*yield fork(rsf.database.sync, path, 
-        { successActionCreator: _value => ({
-            type: R_SYNCREF,
-            payload: {value:_value, key1, key2},
-          }) }
-    );*/
-    yield fork(
-        rsf.firestore.syncDocument,
-        path,
+    yield fork(rsf.database.sync, path, 
         { 
-         successActionCreator: (snapshot) => {
-            console.log(JSON.stringify(snapshot.data()));// = {"profile_picture":null,"_search_index":{"reversed_full_name":"ty r","full_name":"r ty1"},"full_name":"r ty1"}            
-            const doc = snapshot.data();
-            let value = doc;
-            if(key2 !== null)
-                value = doc[key2]; //we are reading a document field                       
-            //else we are reading a document
-            console.log("VALUE TO SYNC: ");
-            console.log(JSON.stringify(value));
-            return ({
-                type: fire_types.R_SYNCREF,
-                payload: {value, key1, key2},
-            }); 
-          },
-          failureActionCreator: (error) => {
-            console.log("ERROR ON SYNC: ");
-            console.log(JSON.stringify(error));
-            return ({
-                type: fire_types.R_SYNCREF,
-                payload: {value: null, key1, key2},
-            }); 
-          }
+          successActionCreator: (_value) => {
+            console.log("======DATA _value=========")
+            console.log(JSON.stringify(_value));
+                return ({
+                    type: fire_types.R_SYNCREF,
+                    payload: {value:_value, key1, key2},
+                }); 
+            },
+            failureActionCreator: (error) => {
+                console.log("ERROR ON SYNC - syncref: ");
+                console.log(JSON.stringify(error));
+                return ({
+                    type: fire_types.R_SYNCREF,
+                    payload: {value:null, key1, key2},
+                }); 
+            } 
         }
     );
+    //console.log(`--->syncref->path.value=${value}`);
+    //yield put({type: R_SYNCREF, payload: {value: "sync2 fullname", key1, key2}});    
+    //yield put({type: R_READREF, payload: {value: "2read fullname", key1, key2}});    
 }
 export function* watchSyncref(){
     //yield takeLatest(S_READREF, readref);
     yield takeEvery(fire_types.S_SYNCREF, syncref);
 }
-

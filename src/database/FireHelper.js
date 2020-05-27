@@ -5,9 +5,7 @@
 
 'use strict';
 
-const firebase = require("firebase");
-// Required for side-effects
-require("firebase/firestore");
+import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/storage';
@@ -55,8 +53,7 @@ export default class FireHelper {
    */
   constructor() {
     // Firebase SDK.
-    //this.database = firebase.database();
-    this.db = firebase.firestore();
+    this.database = firebase.database();
     this.storage = firebase.storage();
     this.auth = firebase.auth();
 
@@ -65,36 +62,9 @@ export default class FireHelper {
   }
 
   /**
-   * Fetches the user's privacy settings.
+   * For tests.
    */
   test(uid) {
-    uid = "rIxsSJGeQqdpk9oogwvjGc3pHt53";
-    this.db.collection("privacy").doc(uid).get().then(function(doc) {
-        console.log("Cached document data:", doc.data());
-    }).catch(function(error) {
-        console.log("===========ERROR==========");
-        console.log("Error getting cached document:", error);
-    });
-    //return this.database.ref(`/privacy/${uid}`).once('value');
-
-    /*var docRef = db.collection("cities").doc("SF");
-
-    // Valid options for source are 'server', 'cache', or
-    // 'default'. See https://firebase.google.com/docs/reference/js/firebase.firestore.GetOptions
-    // for more information.
-    var getOptions = {
-        source: 'cache'
-    };
-
-    // Get a document, forcing the SDK to fetch from the offline cache.
-    docRef.get(getOptions).then(function(doc) {
-        // Document was found in the cache. If no cached document exists,
-        // an error will be returned to the 'catch' block below.
-        console.log("Cached document data:", doc.data());
-    }).catch(function(error) {
-        console.log("Error getting cached document:", error);
-    });*/
-
   }
 
 
@@ -136,10 +106,10 @@ export default class FireHelper {
       console.error(e);
     }
 
-    this.getPrivacySettings(user.uid).then((doc) => {
+    this.getPrivacySettings(user.uid).then((snapshot) => {
       let socialEnabled = false;
-      if (doc.exists && doc.data() !== null) {
-        socialEnabled = doc.data().social;
+      if (snapshot.val() !== null) {
+        socialEnabled = snapshot.val().social;
       }
       else//By default, we set socialEnabled=true
         socialEnabled = true;
@@ -155,19 +125,17 @@ export default class FireHelper {
           reversed_full_name: searchReversedFullName,
         };
       };
-
-      //console.log("Hello I am here::");
-      return this.db.collection("people").doc(user.uid).set(updateData, { merge: true }).then(() => {
+      return this.database.ref(`/people/${user.uid}`).update(updateData).then(() => {
         console.log('Public profile updated.');
       });
     });
   }
-
+  
   /**
-   * +Fetches the user's privacy settings.
+   * Fetches the user's privacy settings.
    */
   getPrivacySettings(uid) {
-    return this.db.collection("privacy").doc(uid).get();
+    return this.database.ref(`/privacy/${uid}`).once('value');
   }
 
   /**
@@ -180,10 +148,10 @@ export default class FireHelper {
    */
   getUserFeedPosts(uid) {
     return this._getPaginatedFeed(`/people/${uid}/posts`,
-        FireHelper.USER_PAGE_POSTS_PAGE_SIZE, null, true);
+        FirebaseHelper.USER_PAGE_POSTS_PAGE_SIZE, null, true);
   }
 
-  /**
+    /**
    * Paginates entries from the given feed.
    *
    * Fetches a page of `pageSize` entries from the given feed.
@@ -199,8 +167,7 @@ export default class FireHelper {
    */
   _getPaginatedFeed(uri, pageSize, earliestEntryId = null, fetchPostDetails = false) {
     console.log('Fetching entries from', uri, 'start at', earliestEntryId, 'page size', pageSize);
-    let ref = this.db.collection(uri);
-    //let ref = this.db.collection("privacy").doc(uid).get();
+    let ref = this.database.ref(uri);
     if (earliestEntryId) {
       ref = ref.orderByKey().endAt(earliestEntryId);
     }
@@ -244,6 +211,5 @@ export default class FireHelper {
       return {entries: entries, nextPage: nextPage};
     });
   }
-
 
 };

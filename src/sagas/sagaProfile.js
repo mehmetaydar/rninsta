@@ -9,9 +9,9 @@ function* loadprofile({uid}){
     console.log(`-->loadprofile-> uid:${uid} `); 
     /*const value = yield call(rsf.database.read, path);
     console.log(`--->readref->path.value=${value}`);*/
-    const snapshot = yield call(rsf.firestore.getDocument, `/people/${uid}`);    
-    if(snapshot.exists){
-        const doc = snapshot.data();
+    const doc = yield call(rsf.database.read, `/people/${uid}`);    
+    //console.log(JSON.stringify(doc));
+    if(doc){
         console.log("User profile - doc: ");
         console.log(JSON.stringify(doc));
         yield put({type: types.r_profileinfo, 
@@ -27,13 +27,13 @@ export function* watchLoadprofile(){
 function* nbposts({uid}){
     console.log(`-->nbposts-> uid:${uid} `); 
     yield fork(
-        rsf.firestore.syncDocument,
-        `people_posts/${uid}`,
+        rsf.database.sync,
+        `people/${uid}/posts`,
         { 
             successActionCreator: (snapshot) => {
             console.log("======SNAPSHOT.DATA=========")
-            console.log(JSON.stringify(snapshot.data()));// = people/uid/posts                                             
-            const nb = snapshot.data() ? snapshot.data().numChildren() : 0;
+            console.log(JSON.stringify(snapshot));// = people/uid/posts                                             
+            const nb = snapshot ? snapshot.numChildren() : 0;
             console.log("VALUE TO SYNC - nbposts: ");
             console.log(JSON.stringify(nb));
             return ({
@@ -60,13 +60,13 @@ export function* watchnbposts(){
 function* nbfollowers({uid}){
     console.log(`-->nbfollowers-> uid:${uid} `); 
     yield fork(
-        rsf.firestore.syncDocument,
+        rsf.database.sync,
         `followers/${uid}`,
         { 
             successActionCreator: (snapshot) => {
             console.log("======SNAPSHOT.DATA=========")
-            console.log(JSON.stringify(snapshot.data()));// = followers/uid                                             
-            const nb = snapshot.data() ? snapshot.data().numChildren() : 0;
+            console.log(JSON.stringify(snapshot));// = followers/uid                                             
+            const nb = snapshot ? snapshot.numChildren() : 0;
             console.log("VALUE TO SYNC - nbfollowers: ");
             console.log(JSON.stringify(nb));
             return ({
@@ -93,13 +93,13 @@ export function* watchnbfollowers(){
 function* nbfollowing({uid}){
     console.log(`-->nbfollowing-> uid:${uid} `); 
     yield fork(
-        rsf.firestore.syncDocument,
-        `people_following/${uid}`,
+        rsf.database.sync,
+        `people/${uid}/following/`,
         { 
             successActionCreator: (snapshot) => {
             console.log("======SNAPSHOT.DATA=========")
-            console.log(JSON.stringify(snapshot.data()));// = people_following/uid                                             
-            const nb = snapshot.data() ? snapshot.data().numChildren() : 0;
+            console.log(JSON.stringify(snapshot));// = people_following/uid                                             
+            const nb = snapshot ? snapshot.numChildren() : 0;
             console.log("VALUE TO SYNC - nbfollowing: ");
             console.log(JSON.stringify(nb));
             return ({
@@ -127,12 +127,12 @@ function* loadprofileposts({uid}){
     console.log(`-->loadprofileposts-> uid:${uid} `); 
     yield fork(
         rsf.firestore.syncDocument,
-        `people_following/${uid}`,
+        `people/${uid}/posts/`,
         { 
             successActionCreator: (snapshot) => {
             console.log("======SNAPSHOT.DATA=========")
-            console.log(JSON.stringify(snapshot.data()));// = people_following/uid                                             
-            const nb = snapshot.data() ? snapshot.data().numChildren() : 0;
+            console.log(JSON.stringify(snapshot));// = people_following/uid                                             
+            const nb = snapshot ? snapshot.numChildren() : 0;
             console.log("VALUE TO SYNC - nbfollowing: ");
             console.log(JSON.stringify(nb));
             return ({

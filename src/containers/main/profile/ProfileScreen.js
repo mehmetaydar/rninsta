@@ -7,6 +7,8 @@ import {clearErrorMessage } from 'actions';
 import {fr, frh} from 'database/Fire';
 import {loadprofile, nbfollowers, nbfollowing, nbposts} from '../../../actions/actionProfile';
 
+import {readref, syncref} from '../../../actions/actionFire';
+
 const ProfileScreen = (props) => {
   //const {fr, frh} = {fr: Fire.fr, frh: Fire.frh};
   const userId = fr.uid;
@@ -21,26 +23,18 @@ const ProfileScreen = (props) => {
   const _nbposts = (uid)=> props.nbposts({uid});
   const _nbfollowing = (uid)=> props.nbfollowing({uid});
   const _nbfollowers = (uid)=> props.nbfollowers({uid});
+
+  const readRef = (path, key1, key2) => props.readref({path, key1, key2})
+  const syncRef = (path, key1, key2) => props.syncref({path, key1, key2})
+
   useEffect(() => {
     _loadprofile(userId);
     _nbposts(userId);    
     _nbfollowing(userId);
     _nbfollowers(userId);
 
-    //loadProfile(userId);
-    //readRef(`people/${userId}`, 'profile', 'full_name');
-    //syncRef(`/people/${userId}`, 'profile', "full_name"); 
-    //syncRef(`/people/${userId}/full_name`, 'profile', 'full_name');
-    //readRef(`/people/${userId}/full_name`, 'profile', 'full_name');
-    //readRef(`/people/${userId}/url`, 'profile', 'url');
-    //readRef(`/people/${userId}/bio`, 'profile', 'bio');
-    //props.readref({path: `/people/${userId}/full_name`, key1: 'profile', key2: 'full_name'});
-    //props.readref({path: `/people/${userId}/url`, key1: 'profile', key2: 'url'});
-    //props.readref({path: `/people/${userId}/bio`, key1: 'profile', key2: 'bio'});
-    /*async function loadMessages() {
-      await props.loadMessages(binId);
-    }
-    loadMessages();*/
+     //syncRef(`/people/${userId}/full_name`, 'profile', 'full_name');
+     //readRef(`/people/${userId}/full_name`, 'profile', 'full_name');     
   }, []);
 
   onRefresh = () => {
@@ -135,7 +129,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   loadprofile,
-  nbposts, nbfollowers, nbfollowing
+  nbposts, nbfollowers, nbfollowing,
+  readref, syncref  
 }; 
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileScreen);
