@@ -5,7 +5,7 @@ import colors from 'res/colors';
 import { connect } from 'react-redux';
 import {clearErrorMessage } from 'actions';
 import {fr, frh} from 'database/Fire';
-import {loadprofile, nbfollowers, nbfollowing, nbposts} from '../../../actions/actionProfile';
+import {readref, syncref} from '../../../actions/actionFire';
 
 const ProfileScreen = (props) => {
   //const {fr, frh} = {fr: Fire.fr, frh: Fire.frh};
@@ -17,19 +17,16 @@ const ProfileScreen = (props) => {
   console.log(JSON.stringify(profile));
   console.log("<--->");
 
-  const _loadprofile = (uid)=> props.loadprofile({uid});
-  const _nbposts = (uid)=> props.nbposts({uid});
-  const _nbfollowing = (uid)=> props.nbfollowing({uid});
-  const _nbfollowers = (uid)=> props.nbfollowers({uid});
+  function readRef(path, key1, key2) {
+    props.readref({path, key1, key2});
+  };
+  function syncRef(path, key1, key2) {
+    props.syncref({path, key1, key2});
+  };
   useEffect(() => {
-    _loadprofile(userId);
-    _nbposts(userId);    
-    _nbfollowing(userId);
-    _nbfollowers(userId);
-
-    //loadProfile(userId);
+    
     //readRef(`people/${userId}`, 'profile', 'full_name');
-    //syncRef(`/people/${userId}`, 'profile', "full_name"); 
+    syncRef(`/people/${userId}`, 'profile', "full_name"); 
     //syncRef(`/people/${userId}/full_name`, 'profile', 'full_name');
     //readRef(`/people/${userId}/full_name`, 'profile', 'full_name');
     //readRef(`/people/${userId}/url`, 'profile', 'url');
@@ -48,6 +45,50 @@ const ProfileScreen = (props) => {
   };
 
   //frh.cancelAllSubscriptions(); //clear
+
+  const profileData = {
+    full_name: '', //'Zafer AYAN',
+    url: '',
+    bio: '',
+    profile_picture: '',
+    statistics: {
+      posts: null,
+      followers: null,
+      following: null
+    }
+  };
+
+  //instead tie this to redux
+/*  const [num, setNum] = useState(0);
+  // Load user's profile.
+  frh.loadUserProfile(userId).then((snapshot) => {
+    const userInfo = snapshot.val();
+    if (userInfo) {
+      profileData.profile_picture =  userInfo.profile_picture;
+      profileData.full_name =  userInfo.full_name;
+      console.log(profileData.full_name);
+    }     
+  });*/
+  
+  //instead directly get nbFollowers under people/uid since it will be updated through cloud functions
+  //I believe they should be reduxed, get three of them together under one redux action, + plus the profile info
+  // Lod user's number of followers.
+  /*frh.registerForFollowersCount(userId,
+    (nbFollowers) => { 
+            profileData.statistics.followers= nbFollowers; 
+            console.log(profileData.statistics.followers)
+            setNum(profileData.statistics.followers);
+      });
+
+    
+  // Lod user's number of followed users.
+  frh.registerForFollowingCount(userId,
+      (nbFollowed) => profileData.statistics.following = nbFollowed )
+
+  // Lod user's number of posts.
+  frh.registerForPostsCount(userId,
+      (nbPosts) => profileData.statistics.posts = nbPosts )
+  */
 
   const dataSource = [{ key: '1' }, { key: '2' }, { key: '3' }, { key: '4' }, { key: '5' }, { key: '6' }, { key: '7' }, { key: '8' }, { key: '9' }, { key: '10' }, { key: '11' }, { key: '12' }, { key: '13' },];
   renderItem = ({ item }) => {
@@ -77,7 +118,7 @@ const ProfileScreen = (props) => {
             <Text style={styles.statisticsTitle}>Takip</Text>
           </View>
         </View>
-        <Text style={styles.name}>{profile.full_name}</Text>
+        <Text style={styles.name}>{props.profile.full_name}</Text>
         <Text style={styles.bio}>{profile.bio}</Text>
         <Text style={styles.link} onPress={() => Linking.openURL(profile.url)}>
           {profile.url}
@@ -125,17 +166,15 @@ const mapStateToProps = (state) => {
   console.log(JSON.stringify(profile));
   return {profile};*/
 
-  console.log("State in ProfileScreen.mapStateToProps: ")
   console.log(JSON.stringify(state));
   return {
-      profile: "data" in state.profileReducer ? state.profileReducer.data : {},
-      error: "error" in state.profileReducer ? state.profileReducer.error :  null
+      profile: state.fireReducer.profile
     }
 }
 
 const mapDispatchToProps = {
-  loadprofile,
-  nbposts, nbfollowers, nbfollowing
+  clearErrorMessage,
+  readref, syncref     
 }; 
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileScreen);

@@ -1,10 +1,19 @@
-import React from 'react';
+import React /*, {useEffect}*/ from 'react';
 import { FlatList } from 'react-native';
 import colors from 'res/colors';
 import Post from './post/Post';
 import StoryContainer from './story/StoryContainer';
+//import {Fire, fr, frh, rsf} from '../../../database/Fire';
 
 const HomeScreen = (props) => {
+
+  /*useEffect(()=>{
+
+    console.log("==========MAIN TEST START =====================");
+    frh.getUserFeedPosts(fr.uid);
+    console.log("----------MAIN TEST END -----------------------");
+  }, []);*/
+
   const post = {
     username: 'ozaferayan',
     placeName: 'İstanbul, Türkiye',
