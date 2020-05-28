@@ -65,6 +65,8 @@ export default class FireHelper {
    * For tests.
    */
   test(uid) {
+    console.log("This is test");
+    this.cancelAllSubscriptions();
   }
 
 
@@ -146,9 +148,9 @@ export default class FireHelper {
    * We return a `Promise` which resolves with an Map of posts and a function to the next page or
    * `null` if there is no next page.
    */
-  getUserFeedPosts(uid) {
+  async getUserFeedPosts(uid) {
     return this._getPaginatedFeed(`/people/${uid}/posts`,
-        FirebaseHelper.USER_PAGE_POSTS_PAGE_SIZE, null, true);
+        FireHelper.USER_PAGE_POSTS_PAGE_SIZE, null, true);
   }
 
     /**
@@ -210,6 +212,53 @@ export default class FireHelper {
       }
       return {entries: entries, nextPage: nextPage};
     });
+  }
+
+  /**
+   * Deletes the given postId entry from the user's home feed.
+   */
+  deleteFromFeed(uri, postId) {
+    return this.database.ref(`${uri}/${postId}`).remove();
+  }
+
+  /**
+   * Subscribes to receive updates to a user feed. The given `callback` function gets called for
+   * each new post to a user page post feed.
+   *
+   * If provided we'll only listen to posts that were posted after `latestPostId`.
+   */
+  subscribeToUserFeed(uid, callback, latestPostId) {
+    return this._subscribeToFeed(`/people/${uid}/posts`, callback,
+        latestPostId, true);
+  }
+
+  /**
+   * Subscribes to receive updates to the given feed. The given `callback` function gets called
+   * for each new entry on the given feed.
+   *
+   * If provided we'll only listen to entries that were posted after `latestEntryId`. This allows to
+   * listen only for new feed entries after fetching existing entries using `_getPaginatedFeed()`.
+   *
+   * If needed the posts details can be fetched. This is useful for shallow post feeds.
+   * @private
+   */
+  _subscribeToFeed(uri, callback, latestEntryId = null, fetchPostDetails = false) {
+    // Load all posts information.
+    let feedRef = this.database.ref(uri);
+    if (latestEntryId) {
+      feedRef = feedRef.orderByKey().startAt(latestEntryId);
+    }
+    feedRef.on('child_added', (feedData) => {
+      if (feedData.key !== latestEntryId) {
+        if (!fetchPostDetails) {
+          callback(feedData.key, feedData.val());
+        } else {
+          this.database.ref(`/posts/${feedData.key}`).once('value').then(
+              (postData) => callback(postData.key, postData.val()));
+        }
+      }
+    });
+    this.firebaseRefs.push(feedRef);
   }
 
 };

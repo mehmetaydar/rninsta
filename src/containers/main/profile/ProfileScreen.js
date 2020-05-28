@@ -5,7 +5,8 @@ import colors from 'res/colors';
 import { connect } from 'react-redux';
 import {clearErrorMessage } from 'actions';
 import {fr, frh} from 'database/Fire';
-import {loadprofile, nbfollowers, nbfollowing, nbposts} from '../../../actions/actionProfile';
+import {loadprofile, nbfollowers, nbfollowing, nbposts,
+  loadprofileposts} from '../../../actions/actionProfile';
 
 import {readref, syncref} from '../../../actions/actionFire';
 
@@ -13,25 +14,34 @@ const ProfileScreen = (props) => {
   //const {fr, frh} = {fr: Fire.fr, frh: Fire.frh};
   const userId = fr.uid;
   profile = props.profile;
+  posts = props.posts;
 
   console.log("<--->");
   console.log("ProfileScreen.profile:");
   console.log(JSON.stringify(profile));
   console.log("<--->");
 
+  console.log("<--->");
+  console.log("ProfileScreen.posts:");
+  console.log(JSON.stringify(posts));
+  console.log("<--->");
+
   const _loadprofile = (uid)=> props.loadprofile({uid});
   const _nbposts = (uid)=> props.nbposts({uid});
   const _nbfollowing = (uid)=> props.nbfollowing({uid});
   const _nbfollowers = (uid)=> props.nbfollowers({uid});
+  const _loadprofileposts = (uid)=> props.loadprofileposts({uid});
 
   const readRef = (path, key1, key2) => props.readref({path, key1, key2})
   const syncRef = (path, key1, key2) => props.syncref({path, key1, key2})
 
   useEffect(() => {
-    _loadprofile(userId);
+    //console.log(frh.test());
+    _loadprofileposts(userId);
+    /*_loadprofile(userId);
     _nbposts(userId);    
     _nbfollowing(userId);
-    _nbfollowers(userId);
+    _nbfollowers(userId);*/
 
      //syncRef(`/people/${userId}/full_name`, 'profile', 'full_name');
      //readRef(`/people/${userId}/full_name`, 'profile', 'full_name');     
@@ -123,6 +133,7 @@ const mapStateToProps = (state) => {
   console.log(JSON.stringify(state));
   return {
       profile: "data" in state.profileReducer ? state.profileReducer.data : {},
+      posts: "posts" in state.profileReducer ? state.profileReducer.posts : {},
       error: "error" in state.profileReducer ? state.profileReducer.error :  null
     }
 }
@@ -130,7 +141,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = {
   loadprofile,
   nbposts, nbfollowers, nbfollowing,
-  readref, syncref  
+  loadprofileposts,
+  readref, syncref   
 }; 
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileScreen);

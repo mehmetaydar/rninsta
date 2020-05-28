@@ -125,31 +125,11 @@ export function* watchnbfollowing(){
 
 function* loadprofileposts({uid}){
     console.log(`-->loadprofileposts-> uid:${uid} `); 
-    yield fork(
-        rsf.firestore.syncDocument,
-        `people/${uid}/posts/`,
-        { 
-            successActionCreator: (snapshot) => {
-            console.log("======SNAPSHOT.DATA=========")
-            console.log(JSON.stringify(snapshot));// = people_following/uid                                             
-            const nb = snapshot ? snapshot.numChildren() : 0;
-            console.log("VALUE TO SYNC - nbfollowing: ");
-            console.log(JSON.stringify(nb));
-            return ({
-                type: types.r_profile_nb,
-                payload: {nbtype: "nbfollowing", nb},
-            }); 
-            },
-            failureActionCreator: (error) => {
-            console.log("ERROR ON SYNC - nbfollowing: ");
-            console.log(JSON.stringify(error));
-            return ({
-                type: types.r_error,
-                payload: {error},
-            }); 
-            }
-        }
-    );    
+    const data = yield frh.getUserFeedPosts(uid);
+    //frh.getUserFeedPosts(uid);
+    console.log("======frh.getUserFeedPosts=========")
+    console.log(JSON.stringify(data));// = people_following/uid
+    yield put({type: types.r_profile_posts, payload: {entries: data.entries, nextPage: data.nextPage}});    
 }
 export function* watchLoadProfilePosts(){
     console.log("Watch watchLoadProfilePosts");
