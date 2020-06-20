@@ -261,4 +261,117 @@ export default class FireHelper {
     this.firebaseRefs.push(feedRef);
   }
 
+  /**
+   * Fetches a single post data.
+   */
+  getPostData(postId) {
+    return this.database.ref(`/posts/${postId}`).once('value');
+  }
+
+  /**
+   * Uploads a new Picture to Cloud Storage and adds a new post referencing it.
+   * This returns a Promise which completes with the new Post ID.
+   */
+  uploadNewPic(pic, thumb, fileName, text) {
+    console.log("uploadNewPic");
+    // Get a reference to where the post will be created.
+    const newPostKey = this.database.ref('/posts').push().key;
+
+    console.log("New-post-key: ", newPostKey)
+    console.log("upload-path: ", `${this.auth.currentUser.uid}/full/${newPostKey}/${fileName}`);
+    // Start the pic file upload to Cloud Storage.
+    console.log(1);
+    const picRef = this.storage.ref(`${this.auth.currentUser.uid}/full/${newPostKey}/${fileName}`);
+    console.log(2);
+    const metadata = {
+      contentType: pic.type,
+    };
+    console.log(3);
+    const picUploadTask = picRef.put(pic, metadata).then((snapshot) => {
+      console.log('New pic uploaded. Size:', snapshot.totalBytes, 'bytes.');
+      return snapshot.ref.getDownloadURL().then((url) => {
+        console.log('File available at', url);
+        return url;
+      });
+    }).catch((error) => {
+      console.error('Error while uploading new pic', error);
+    });
+    console.log(4);
+    // Start the thumb file upload to Cloud Storage.
+    const thumbRef = this.storage.ref(`${this.auth.currentUser.uid}/thumb/${newPostKey}/${fileName}`);
+    const tumbUploadTask = thumbRef.put(thumb, metadata).then((snapshot) => {
+      console.log('New thumb uploaded. Size:', snapshot.totalBytes, 'bytes.');
+      return snapshot.ref.getDownloadURL().then((url) => {
+        console.log('File available at', url);
+        return url;
+      });
+    }).catch((error) => {
+      console.error('Error while uploading new thumb', error);
+    });
+
+    return Promise.all([picUploadTask, tumbUploadTask]).then((urls) => {
+      // Once both pics and thumbnails has been uploaded add a new post in the Firebase Database and
+      // to its fanned out posts lists (user's posts and home post).
+      const update = {};
+      update[`/posts/${newPostKey}`] = {
+        full_url: urls[0],
+        thumb_url: urls[1],
+        text: text,
+        client: 'mobile',
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        full_storage_uri: picRef.toString(),
+        thumb_storage_uri: thumbRef.toString(),
+        author: {
+          uid: this.auth.currentUser.uid,
+          full_name: this.auth.currentUser.displayName || 'Anonymous',
+          profile_picture: this.auth.currentUser.photoURL || null,
+        },
+      };
+      update[`/people/${this.auth.currentUser.uid}/posts/${newPostKey}`] = true;
+      update[`/feed/${this.auth.currentUser.uid}/${newPostKey}`] = true;
+      return this.database.ref().update(update).then(() => newPostKey);
+    }); 
+  }  
+
+  /**
+   * Uploads a new Profile Picture to Cloud Storage and adds its ref to auth and people.
+   * This returns a Promise which completes with the new storage url.
+   */
+  uploadProfilePic(pic) {
+    let user = firebase.auth().currentUser;
+    console.log("uploadProfilePic");
+    console.log("upload-path: ", `${this.auth.currentUser.uid}/profile/profile-pic`);
+    // Start the pic file upload to Cloud Storage.
+    console.log(1);
+    const picRef = this.storage.ref(`${this.auth.currentUser.uid}/profile/profile-pic`);
+                   //this.storage.ref(`${this.auth.currentUser.uid}/full/${newPostKey}/${fileName}`);
+    console.log(2);
+    const metadata = {
+      contentType: pic.type,
+    };
+    console.log(3);
+    const picUploadTask = picRef.put(pic, metadata).then((snapshot) => {
+      console.log('New pic uploaded. Size:', snapshot.totalBytes, 'bytes.');
+      return snapshot.ref.getDownloadURL().then((url) => {
+        console.log('File available at', url);
+        return url;
+      });
+    }).catch((error) => {
+      console.error('Error while uploading new pic', error);
+    });
+    console.log(4);
+
+    return Promise.all([picUploadTask]).then((urls) => {
+      const url = urls[0];
+      const update = {};
+
+      user.updateProfile({photoURL: url}).then(() => {
+        console.log('User profile updated.');
+        update[`/people/${this.auth.currentUser.uid}/profile_picture`] = url;
+        return this.database.ref().update(update).then(() => url);
+      });      
+    }); 
+  }
+
+
 };

@@ -7,8 +7,8 @@ import {clearErrorMessage } from 'actions';
 import {fr, frh} from 'database/Fire';
 import {loadprofile, nbfollowers, nbfollowing, nbposts,
   loadprofileposts} from '../../../actions/actionProfile';
-
 import {readref, syncref} from '../../../actions/actionFire';
+import {navigate} from '../../../navigationRef';
 
 const ProfileScreen = (props) => {
   //const {fr, frh} = {fr: Fire.fr, frh: Fire.frh};
@@ -26,6 +26,11 @@ const ProfileScreen = (props) => {
   console.log(JSON.stringify(posts));
   console.log("<--->");
 
+  console.log("<--->");
+  console.log("ProfileScreen.navigation:");
+  console.log(props.navigation);
+  console.log("<--->");
+
   const _loadprofile = (uid)=> props.loadprofile({uid});
   const _nbposts = (uid)=> props.nbposts({uid});
   const _nbfollowing = (uid)=> props.nbfollowing({uid});
@@ -38,10 +43,10 @@ const ProfileScreen = (props) => {
   useEffect(() => {
     //console.log(frh.test());
     _loadprofileposts(userId);
-    /*_loadprofile(userId);
+    _loadprofile(userId);
     _nbposts(userId);    
     _nbfollowing(userId);
-    _nbfollowers(userId);*/
+    _nbfollowers(userId);
 
      //syncRef(`/people/${userId}/full_name`, 'profile', 'full_name');
      //readRef(`/people/${userId}/full_name`, 'profile', 'full_name');     
@@ -64,10 +69,11 @@ const ProfileScreen = (props) => {
   }
 
   renderProfileHeader = () => {
+    console.log("profile.profile_picture: ",profile.profile_picture);
     return (
       <View style={styles.bioContainer}>
         <View style={styles.profileImageSection}>
-          <Image source={profile.profile_picture} style={styles.profileImage} />
+          <Image source={{uri: profile.profile_picture}} style={styles.profileImage} />
           <View style={{ alignItems: 'center' }} >
             <Text style={styles.statisticsValue}>{profile.nbposts}</Text>
             <Text style={styles.statisticsTitle}>Gönderiler</Text>
@@ -86,7 +92,7 @@ const ProfileScreen = (props) => {
         <Text style={styles.link} onPress={() => Linking.openURL(profile.url)}>
           {profile.url}
         </Text>
-        <TouchableOpacity style={styles.editProfileButton}>
+        <TouchableOpacity style={styles.editProfileButton} onPress={()=>props.navigation.navigate("EditProfile")}>
           <Text style={styles.editProfileText}>Profili Düzenle</Text>
         </TouchableOpacity>
 
