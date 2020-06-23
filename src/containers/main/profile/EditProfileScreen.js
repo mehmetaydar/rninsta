@@ -1,28 +1,40 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Button } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import images from 'res/images';
 import colors from 'res/colors';
 import { connect } from 'react-redux';
 import {clearErrorMessage } from 'actions';
 import {fr, frh} from 'database/Fire';
-import {loadprofile} from '../../../actions/actionProfile';
+import {loadprofile, uploadprofilepic} from '../../../actions/actionProfile';
 import {readref, syncref} from '../../../actions/actionFire';
 import {navigate} from '../../../navigationRef';
+import Spacer from 'components/Spacer';
+
 
 import ImagePicker from 'react-native-image-picker';
 import Uploader from 'database/Uploader';
+import {Text, Input, Button} from 'react-native-elements';
 
 const EditProfileScreen = (props) => {
   const userId = fr.uid;
   profile = props.profile;
+
+  [resourcePath, setResourcePath] = useState({});
+  [fullname, setFullName] = useState(profile.full_name);
+  [bio, setBio] = useState(profile.bio);
 
   console.log("<--->");
   console.log("EditProfileScreen.profile:");
   console.log(JSON.stringify(profile));
   console.log("<--->");
 
-  const _loadprofile = (uid)=> props.loadprofile({uid});
+  console.log("<--->");
+  console.log("EditProfileScreen.props.error:");
+  console.log(JSON.stringify(props.error));
+  console.log("<--->");
 
+  const _loadprofile = (uid)=> props.loadprofile({uid});
+  const _uploadprofilepic = (image)=> props.uploadprofilepic({image});
   const readRef = (path, key1, key2) => props.readref({path, key1, key2})
   const syncRef = (path, key1, key2) => props.syncref({path, key1, key2})
 
@@ -34,7 +46,7 @@ const EditProfileScreen = (props) => {
     console.log('onRefresh');
   };
 
-  [resourcePath, setResourcePath] = useState({});
+  
   selectFile = () => {
     var options = {
       title: 'Select Image',
@@ -63,6 +75,8 @@ const EditProfileScreen = (props) => {
       } else {
         let source = res;
         setResourcePath(source);
+        //console.log("Type: ", resourcePath.type);
+        _uploadprofilepic(resourcePath);
       }
     });
   };
@@ -93,23 +107,6 @@ cameraLaunch = () => {
   });
 }
 
-uriToBlob = async (uri) => {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function() {
-      // return the blob
-      resolve(xhr.response);
-    };    
-    xhr.onerror = function() {
-      // something went wrong
-      reject(new Error('uriToBlob failed'));
-    };
-    // this helps us get a blob
-    xhr.responseType = 'blob';
-    xhr.open('GET', uri, true);
-    xhr.send(null);
-  });
-}
 
 imageGalleryLaunch = () => {
   let options = {
@@ -159,22 +156,54 @@ uploadIt = async () => {
 }
 
   return (
+
+      
+
+
     <View style={styles.container}>
-      <View style={styles.container}>
-        <Image
-          source={{
-            uri: 'data:image/jpeg;base64,' + resourcePath.data,
-          }}
-          style={{ width: 100, height: 100 }}
+
+      <View style={styles.profileImageSection}>
+          <TouchableOpacity onPress={this.selectFile}>
+            <Image source={{uri: profile.profile_picture}} style={styles.profileImage} />          
+          </TouchableOpacity>
+      </View>
+      <TouchableOpacity onPress={this.selectFile}>
+            <Text>Profil Fotoğrafını Değiştir</Text>
+      </TouchableOpacity>
+
+      <Input 
+        label="Name" 
+        value={profile.full_name}
+        onChangeText={setFullName}
+        autoCapitalize="none"
+        autoCorrect={false}
         />
+        <Spacer />
+
+        <Input 
+        label="Bio" 
+        value={profile.bio}
+        onChangeText={setBio}
+        autoCapitalize="none"
+        autoCorrect={false}
+        />
+        <Spacer />
+        
+        {props.error ? <Text style={styles.errorMessage}>{props.error}</Text> : null}
+        
+        <Spacer>
+            <Button title="Sign Up" onPress={()=>{
+                console.log("clicked Signup submit");
+                props.signup({email, password, fullname});
+            }}/>
+        </Spacer>
+      
+
+      <View style={styles.container}>      
         <Image
           source={{ uri: resourcePath.uri }}
           style={{ width: 200, height: 200 }}
         />
-        <Text style={{ alignItems: 'center' }}>
-          {resourcePath.uri}
-        </Text>
-
         <TouchableOpacity onPress={this.selectFile} style={styles.button}  >
             <Text style={styles.buttonText}>Select File</Text>
         </TouchableOpacity>       
@@ -193,7 +222,9 @@ uploadIt = async () => {
   /*return (
     <View style={styles.bioContainer}>
       <View style={styles.profileImageSection}>
-          <Image source={profile.profile_picture} style={styles.profileImage} />          
+          <TouchableOpacity onPress={this.selectFile}>
+            <Image source={{uri: profile.profile_picture}} style={styles.profileImage} />          
+          </TouchableOpacity>
       </View>
       <TouchableOpacity>
             <Text>Profil Fotoğrafını Değiştir</Text>
@@ -225,7 +256,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#fff'
   },
-
+  errorMessage: {
+      fontSize: 16,
+      color: 'red',
+      marginLeft: 15,
+      marginTop: 15
+  },
   //container: { backgroundColor: colors.tabBackground, flex: 1, },
   bioContainer: { padding: 20, },
   profileImageSection: { alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row', },
@@ -252,6 +288,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   loadprofile,
+  uploadprofilepic,
   readref, syncref   
 }; 
 

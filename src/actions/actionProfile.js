@@ -12,7 +12,9 @@ export const types = {
     s_profile_nbfollowers: "s_profile_nbfollowers",
     s_profile_nbfollowing: "s_profile_nbfollowing",
     s_profile_posts: "s_profile_posts",
-    r_profile_posts: "r_profile_posts"    
+    r_profile_posts: "r_profile_posts",
+    s_uploadprofilepic: "s_uploadprofilepic",
+    r_uploadprofilepic: "r_uploadprofilepic",    
 }
 
 export const loadprofile = ({uid}) => action(types.s_loadprofile, {uid});
@@ -20,3 +22,4 @@ export const nbposts = ({uid}) => action(types.s_profile_nbposts, {uid});
 export const nbfollowers = ({uid}) => action(types.s_profile_nbfollowers, {uid});
 export const nbfollowing = ({uid}) => action(types.s_profile_nbfollowing, {uid});
 export const loadprofileposts = ({uid}) => action(types.s_profile_posts, {uid});
+export const uploadprofilepic = ({image}) => action(types.s_uploadprofilepic, {image});

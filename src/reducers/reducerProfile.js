@@ -2,14 +2,14 @@ import {types} from '../actions/actionProfile';
 
 initialState = { 
     data: {
-        full_name:null, url:null, bio:null, profile_picture:null,             
-        nbposts:null, nbfollowers:null, nbfollowing:null        
+        full_name:"", url:"", bio:"", profile_picture:"",             
+        nbposts:"", nbfollowers:"", nbfollowing:""        
     },
     posts: {
         entries: [],
         nextPage: null
     },
-    error: null    
+    error: ""    
 };
 
 export const profileReducer = (state = initialState, action) =>{
@@ -26,8 +26,12 @@ export const profileReducer = (state = initialState, action) =>{
             return {...state, data: {...state.data, [action.payload.nbtype]: action.payload.nb} };                     
         case types.r_profile_posts:
             console.log(`Reducer type r_profile_posts: ${action.payload.entries}: ${action.payload.nextPage}`);
-            return {...state, posts: {...state.posts, entries: action.payload.entries}, nextPage: action.payload.nextPage };                     
+            return {...state, posts: {...state.posts, entries: action.payload.entries, nextPage: action.payload.nextPage} };                     
+        case types.r_uploadprofilepic:
+            console.log(`Reducer type r_uploadprofilepic - profile_picture: ${action.payload.profile_picture}`);
+            return {...state, data: {...state.data, profile_picture:action.payload.profile_picture} };    
         default:
-            return state;
+            //return {data: {}, error: null}
+            return initialState;
     }
 };

@@ -3,6 +3,7 @@ import {navigate} from '../navigationRef';
 
 import {types} from '../actions/actionProfile';    
 import {Fire, fr, frh, rsf} from '../database/Fire';
+import Uploader from '../database/Uploader';
 
 
 function* loadprofile({uid}){
@@ -33,7 +34,8 @@ function* nbposts({uid}){
             successActionCreator: (snapshot) => {
             console.log("======SNAPSHOT.DATA=========")
             console.log(JSON.stringify(snapshot));// = people/uid/posts                                             
-            const nb = snapshot ? snapshot.numChildren() : 0;
+            //const nb = snapshot ? snapshot.numChildren() : 0;
+            const nb = snapshot ? Object.keys(snapshot).length : 0;
             console.log("VALUE TO SYNC - nbposts: ");
             console.log(JSON.stringify(nb));
             return ({
@@ -42,7 +44,7 @@ function* nbposts({uid}){
             }); 
             },
             failureActionCreator: (error) => {
-            console.log("ERROR ON SYNC - nbposts: ");
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,<<<<<<<<<<<<<<<<<<<<<<<<ERROR ON SYNC - nbposts: ");
             console.log(JSON.stringify(error));
             return ({
                 type: types.r_error,
@@ -75,7 +77,7 @@ function* nbfollowers({uid}){
             }); 
             },
             failureActionCreator: (error) => {
-            console.log("ERROR ON SYNC - nbfolloers: ");
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,<<<<<<<<<<<<<<<<<<<<<<<<ERROR ON SYNC - nbfolloers: ");
             console.log(JSON.stringify(error));
             return ({
                 type: types.r_error,
@@ -108,7 +110,7 @@ function* nbfollowing({uid}){
             }); 
             },
             failureActionCreator: (error) => {
-            console.log("ERROR ON SYNC - nbfollowing: ");
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,<<<<<<<<<<<<<<<<<<<<<<<<ERROR ON SYNC - nbfollowing: ");
             console.log(JSON.stringify(error));
             return ({
                 type: types.r_error,
@@ -134,4 +136,17 @@ function* loadprofileposts({uid}){
 export function* watchLoadProfilePosts(){
     console.log("Watch watchLoadProfilePosts");
     yield takeLatest(types.s_profile_posts, loadprofileposts); 
+}
+
+//uploadprofilepic
+function* uploadprofilepic({image}){
+    console.log(`-->uploadprofilepic-> image:${image.type} `); 
+    //pics = await Uploader._generateImages(resourcePath);
+    const pics = yield call(Uploader._generateImages, image);    
+    const profile_picture = yield frh.uploadProfilePic(pics.thumb);  //profile pic should have been updated now
+    yield put({type: types.r_uploadprofilepic, payload: {profile_picture}});    
+}
+export function* watchUploadProfilePic(){
+    console.log("Watch watchUploadProfilePic");
+    yield takeLatest(types.s_uploadprofilepic, uploadprofilepic); 
 }

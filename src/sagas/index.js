@@ -4,7 +4,7 @@ import {watchTryLocalSignin, watchClearErrorMessage,
   watchSignup, watchSignin, watchSignout} from './sagaAuth';
 import {watchReadref, watchSyncref} from './sagaFire';
 import {watchLoadprofile, watchnbposts, watchnbfollowers, watchnbfollowing,
-  watchLoadProfilePosts} from './sagaProfile';
+  watchLoadProfilePosts, watchUploadProfilePic} from './sagaProfile';
 
 export default function* rootSaga() {
   yield all([
@@ -20,6 +20,7 @@ export default function* rootSaga() {
     fork(watchnbposts),
     fork(watchnbfollowers),
     fork(watchnbfollowing),
-    fork(watchLoadProfilePosts)
+    fork(watchLoadProfilePosts),
+    fork(watchUploadProfilePic)
   ])
 }

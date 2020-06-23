@@ -16,20 +16,20 @@ const ProfileScreen = (props) => {
   profile = props.profile;
   posts = props.posts;
 
-  console.log("<--->");
+  /*console.log("<--->");
   console.log("ProfileScreen.profile:");
   console.log(JSON.stringify(profile));
-  console.log("<--->");
+  console.log("<--->");*/
 
-  console.log("<--->");
+  /*console.log("<--->");
   console.log("ProfileScreen.posts:");
   console.log(JSON.stringify(posts));
-  console.log("<--->");
+  console.log("<--->");*/
 
-  console.log("<--->");
+/*  console.log("<--->");
   console.log("ProfileScreen.navigation:");
   console.log(props.navigation);
-  console.log("<--->");
+  console.log("<--->");*/
 
   const _loadprofile = (uid)=> props.loadprofile({uid});
   const _nbposts = (uid)=> props.nbposts({uid});

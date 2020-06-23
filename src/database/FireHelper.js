@@ -365,11 +365,14 @@ export default class FireHelper {
       const url = urls[0];
       const update = {};
 
-      user.updateProfile({photoURL: url}).then(() => {
-        console.log('User profile updated.');
-        update[`/people/${this.auth.currentUser.uid}/profile_picture`] = url;
-        return this.database.ref().update(update).then(() => url);
-      });      
+      return new Promise((resolve, reject) => {
+        user.updateProfile({photoURL: url}).then(() => {
+          console.log('User profile updated.');
+          update[`/people/${this.auth.currentUser.uid}/profile_picture`] = url;
+          this.database.ref().update(update).then(() => resolve(url));
+        });
+      });
+      
     }); 
   }
 
